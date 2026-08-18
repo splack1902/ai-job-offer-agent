@@ -1,169 +1,78 @@
-{
-  "name": "AI Job Offer Agent",
-  "nodes": [
-    {
-      "parameters": {
-        "pollTimes": {
-          "item": [
-            {
-              "mode": "everyMinute"
-            }
-          ]
-        },
-        "maxResults": "={{ 1 }}",
-        "filters": {}
-      },
-      "type": "n8n-nodes-base.gmailTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        -80,
-        -112
-      ],
-      "id": "b433c9c4-19e2-4e38-8ae9-c6bb9313d306",
-      "name": "Gmail Trigger"
-    },
-    {
-      "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "gpt-5-mini",
-          "mode": "list",
-          "cachedResultName": "GPT-5-MINI"
-        },
-        "responses": {
-          "values": [
-            {
-              "content": "=You are an AI email classifier.\n\nRead the email below.\n\nReply with ONLY one word:\n\nPaid Offer\nInterview\nAssessment\nRecruiter Follow-up\nRejection\nOther\n\nEmail:\n\n{{ $json.snippet }}"
-            }
-          ]
-        },
-        "simplify": "={{ true }}",
-        "builtInTools": {},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 2.3,
-      "position": [
-        80,
-        -80
-      ],
-      "id": "aab128e2-457d-458e-ac93-c9bc2f29cf22",
-      "name": "Message a model"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "4b425796-066a-496c-ad57-68d144c76111",
-              "leftValue": "={{ $json.output[0].content[0].text }}",
-              "rightValue": "Paid Offer",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        352,
-        160
-      ],
-      "id": "3ff9aaba-69f0-43d3-85fa-108b45c14ec7",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.pushover.net/1/messages.json",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "token",
-              "value": "YOUR_PUSHOVER_APP_TOKEN"
-            },
-            {
-              "name": "user",
-              "value": "YOUR_PUSHOVER_USER_KEY"
-            },
-            {
-              "name": "title",
-              "value": "🎉 New Paid Job Offer"
-            },
-            {
-              "name": "message",
-              "value": "A new paid job offer was detected in your Gmail "
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.5,
-      "position": [
-        256,
-        288
-      ],
-      "id": "8778e5f7-9247-4c6d-9f91-4779234f48d7",
-      "name": "HTTP Request"
-    }
-  ],
-  "pinData": {},
-  "connections": {
-    "Gmail Trigger": {
-      "main": [
-        [
-          {
-            "node": "Message a model",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Message a model": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "binaryMode": "separate",
-    "availableInMCP": false
-  },
-  "nodeGroups": [],
-  "tags": []
-}
+# AI Job Offer Agent
+
+AI-powered workflow that monitors Gmail, classifies recruiting emails using OpenAI, and sends a mobile notification when a paid job offer is detected.
+
+## Workflow
+
+![AI Job Offer Agent Workflow](n8n-workflow.png)
+
+## Overview
+
+The AI Job Offer Agent automates the process of monitoring recruiting emails.
+
+Instead of manually checking an inbox for important employment updates, the workflow uses AI to classify incoming emails and determine whether they contain a paid job offer.
+
+## How It Works
+
+1. **Gmail Trigger** detects a new email.
+2. **OpenAI** analyzes the email and classifies it.
+3. **IF Node** checks whether the classification is `Paid Offer`.
+4. **HTTP Request** sends a notification through Pushover when the condition is true.
+
+## Email Classifications
+
+The AI can classify emails as:
+
+- Paid Offer
+- Interview
+- Assessment
+- Recruiter Follow-up
+- Rejection
+- Other
+
+Currently, the automated notification is triggered for **Paid Offer** emails.
+
+## Technologies
+
+- n8n
+- OpenAI API
+- Gmail
+- Pushover API
+- REST APIs
+- JSON
+- Workflow Automation
+
+## Skills Demonstrated
+
+- AI workflow automation
+- Prompt engineering
+- API integration
+- Conditional logic
+- Business process automation
+- Requirements and workflow design
+- Event-driven automation
+
+## Security
+
+The public workflow contains placeholder credentials.
+
+Real API tokens, OAuth credentials, and personal authentication information should never be committed to a public repository.
+
+## Workflow File
+
+The sanitized n8n workflow is included in:
+
+`ai-job-offer-agent.json`
+
+Users must configure their own Gmail, OpenAI, and Pushover credentials after importing the workflow into n8n.
+
+## Future Improvements
+
+- Interview notifications
+- Assessment notifications
+- Recruiter follow-up alerts
+- Company name extraction
+- Salary extraction
+- Google Calendar integration
+- Application tracking
+- Job-search analytics
